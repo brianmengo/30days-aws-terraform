@@ -14,7 +14,10 @@ resource "aws_instance" "name" {
   monitoring = var.monitoring_enabled
   associate_public_ip_address = var.associate_public_ip_address
 
-  tags = var.tags
+  tags = {
+    Environment = "Dev"
+    Name = "Dev-EC2-instance"
+  }
 }
 
 resource "aws_security_group" "allow_tls" {
@@ -29,9 +32,9 @@ resource "aws_security_group" "allow_tls" {
 resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   security_group_id = aws_security_group.allow_tls.id
   cidr_ipv4         = var.cidr_block[1]
-  from_port         = var.ingress_values[0]
-  ip_protocol       = var.ingress_values[1]
-  to_port           = var.ingress_values[2]
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
 }
 
 
