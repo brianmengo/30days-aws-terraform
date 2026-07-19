@@ -50,9 +50,32 @@ variable "tags" {
   }
 }
 
+# variable "ingress_values"{
+#   type = tuple([number, string, number])
+#   default = [443, "tcp", 443]
+# }
+
 variable "ingress_values"{
-  type = tuple([number, string, number])
-  default = [443, "http", 443]
+  type = list(object({
+    from_port   = number
+    protocol    = string
+    to_port     = number
+    cidr_blocks = list(string)
+  }))
+  default = [
+    {
+      from_port   = 443
+      protocol    = "tcp"
+      to_port     = 443
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      from_port   = 80
+      protocol    = "tcp"
+      to_port     = 80
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ] 
 }
 
 variable "config"{
