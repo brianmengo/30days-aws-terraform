@@ -1,0 +1,12 @@
+{
+    "database":{
+        "host": "localhost",
+        "port": 3306,
+        "username": "admin",
+        "password": "password"
+    },
+    "API":{
+        "endpoint": "https://api.example.com",
+        "timeout": 30
+    }
+}
