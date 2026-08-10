@@ -1,35 +1,37 @@
-resource "aws_instance" "example"{
-  ami           = "ami-0ff8a91507f77f867"
-  # instance_type = var.allowed_instance_type[2]
-  
-  instance_type = var.environment == "dev" ? var.allowed_instance_type[0] : var.allowed_instance_type[2]
-  tags = var.tags
-  
+
+data "aws_vpc" "selected" {
+  filter {
+    name   = "tag:Name"
+    values = ["default"]
+  }
 }
 
-resource "aws_security_group" "example" {
-  name        = "sg"
-  description = "Security group for example instance"
- 
-
-  dynamic "ingress" {
-    for_each = var.ingress_values
-    content {
-      from_port   = ingress.value.from_port
-      to_port     = ingress.value.to_port
-      protocol    = ingress.value.protocol
-      cidr_blocks = ingress.value.cidr_blocks
-    }
+data "aws_subnet" "shared" {
+  filter {
+    name   = "tag:Name"
+    values = ["Subneta"]
   }
 
-  egress = []
-
+  vpc_id = data.aws_vpc.selected.id
 }
 
-locals {
-  all_instance_ids = aws_instance.example[*].id
-}
+data "aws_ami" "Linux2" {
+  most_recent = true
 
-output "instance_ids" {
-  value = local.all_instance_ids
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+  filter {
+    name = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["amazon"]
+ }
+resource "aws_instance" "example"{
+  ami       = data.aws_ami.Linux2.id
+  instance_type = "t2.micro"
+  subnet_id = data.aws_subnet.shared.id
+
 }
